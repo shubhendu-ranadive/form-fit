@@ -7,8 +7,7 @@ from utils.video_reader_utils import VideoReader
 class Exercise():
     """ 運動クラスオブジェクトの初期設定 """
     def __init__(self) -> None:
-        self.video_reader = VideoReader("C:/Users/ranadive_shubhendu_s/image-analysis/shubhendu/data/test_data/アームカール_右手_正面視点.MOV")
-        #self.video_reader = VideoReader(0)
+        self.video_reader = VideoReader(0)
         self.exercise = Pose
 
     """ 運動判断関数 """

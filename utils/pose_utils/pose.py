@@ -1,15 +1,11 @@
+from ultralytics import YOLO
 import cv2
-import mediapipe as mp
-from mediapipe.python.solutions.drawing_utils import _normalized_to_pixel_coordinates
 
 from utils.operation_utils import Operation
 from utils.drawing_utils import Draw
-from utils.pose_utils.const import POSE, PRESENCE_THRESHOLD, VISIBILITY_THRESHOLD
+from utils.pose_utils.const import POSE, VISIBILITY_THRESHOLD
 
-mp_drawing = mp.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.drawing_styles
-mp_pose = mp.solutions.pose
-pose = mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5)
+pose = YOLO('yolov8n-pose.pt')
 
 # 骨格検出クラス
 class Pose():
@@ -33,15 +29,11 @@ class Pose():
     def get_keypoints(self, image, pose_result):
         """ キーポイント取得関数 """
         key_points = {}
-        image_rows, image_cols, _ = image.shape
-        for idx, landmark in enumerate(pose_result.pose_landmarks.landmark):
-            if ((landmark.HasField('visibility') and landmark.visibility < VISIBILITY_THRESHOLD) or
-                (landmark.HasField('presence') and landmark.presence < PRESENCE_THRESHOLD)):
+        for idx, landmark in enumerate(pose_result[0].keypoints.data[0].cpu().numpy().tolist()):
+            if (landmark[2] < VISIBILITY_THRESHOLD):
                 continue
-            landmark_px = _normalized_to_pixel_coordinates(landmark.x, landmark.y,
-                                                            image_cols, image_rows)
-            if landmark_px:
-                key_points[idx] = landmark_px
+            if landmark:
+                key_points[idx] = landmark[:2]
         return key_points
 
     def is_point_in_keypoints(self, str_point):
@@ -212,8 +204,8 @@ class Pose():
         head_point = self.get_available_point(["nose", "left_ear", "right_ear", "left_eye", "right_eye"])
         hip = self.get_available_point(["left_hip", "right_hip"])
         knee = self.get_available_point(["left_knee", "right_knee"])
-        foot = self.get_available_point(["left_foot_index", "right_foot_index", "left_heel", "right_heel", "left_ankle", "right_ankle"])
-        hand_point = self.get_available_point(["left_wrist", "right_wrist", "left_pinky", "right_pinky", "left_index", "right_index"])
+        foot = self.get_available_point(["left_ankle", "right_ankle"])
+        hand_point = self.get_available_point(["left_wrist", "right_wrist"])
 
         if head_point is not None and hand_point is not None:
             self.headpoint_tracker.append(head_point[1]) # height only
@@ -269,14 +261,14 @@ class Pose():
             # 骨格検出後で、画像の上に書けるようにWriteに戻す
             image.flags.writeable = False
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            results = pose.process(image)
+            results = pose.predict(image)
 
             image.flags.writeable = True
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            image = self.draw.overlay(image)
             image = self.draw.skeleton(image, results)
+            image = self.draw.overlay(image)
 
-            if results.pose_landmarks is not None:
+            if results[0].keypoints is not None:
                 self.key_points = self.get_keypoints(image, results)
                 estimated_pose = self.predict_pose()
                 if estimated_pose is not None:
@@ -291,7 +283,8 @@ class Pose():
 
             out.write(image)
             cv2.imshow('Exercise Prediction', image)
-            if cv2.waitKey(5) & 0xFF == 27:
+            key = cv2.waitKey(3)
+            if key == 27:
                 break
         self.video_reader.release()
         cv2.destroyAllWindows()

@@ -1,11 +1,6 @@
 import cv2
 import numpy as np
-import mediapipe as mp
 from PIL import Image, ImageFont, ImageDraw
-
-mp_drawing = mp.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.drawing_styles
-mp_pose = mp.solutions.pose
 
 # フレーム上に描くためのクラス
 class Draw():
@@ -21,11 +16,8 @@ class Draw():
 
     def skeleton(self, image, pose_results):
         """ 骨格を描く """
-        mp_drawing.draw_landmarks(
-                    image,
-                    pose_results.pose_landmarks,
-                    mp_pose.POSE_CONNECTIONS,
-                    landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
+        for result in pose_results:
+            image = result.plot(conf=False, masks=False, preds=False)
         return image
 
     def pose_text(self, image, estimated_pose):
