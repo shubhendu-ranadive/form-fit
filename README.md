@@ -14,13 +14,14 @@ The equipment you need is just a camera(live feed or video) and laptop.
 
 ## Introduction
 This project relies on the Body Keypoints detection model YOLOv8-pose.
+
 It is a GPU compatible, fast and better keypoint detection model compared to Mediapipe.
 
-![image](https://user-images.githubusercontent.com/121268647/214214926-4ef30ccd-c857-4496-8668-5192642abb5a.png)
+![image](https://raw.githubusercontent.com/ultralytics/assets/main/yolov8/banner-yolov8.png)
 
 
 
-![image](https://user-images.githubusercontent.com/121268647/214214853-064034d9-ec8c-456f-8982-b65451f7e51e.png)
+![image](https://user-images.githubusercontent.com/26833433/239691398-d62692dc-713e-4207-9908-2f6710050e5c.jpg)
 
 ## Setup
 I would recommend to use a virtual python environment for this project. 
@@ -37,6 +38,7 @@ numpy>=1.21.5
 opencv-python>=4.6.0.66
 Pillow>=9.0.1
 ```
+
 You can individually install the libraries or use the procedure below to install them.
 
 To clone the repository and install dependent libraries:
@@ -53,6 +55,7 @@ Run the following command to start the keypoint detection tester:
 ```sh
 python pose_detect.py
 ```
+
 Run the following command to start the exercise identification (currently Pushup, Squat and Arm-curl):
 
 ```sh
