@@ -260,11 +260,9 @@ class Pose():
             # 処理速度を上げるために, 画像をReadOnlyにする(画像の上に書けない)
             # 骨格検出後で、画像の上に書けるようにWriteに戻す
             image.flags.writeable = False
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             results = pose.predict(image)
 
             image.flags.writeable = True
-            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
             image = self.draw.skeleton(image, results)
             image = self.draw.overlay(image)
 
